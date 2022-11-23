@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  DetectionSchedule:
+    Type: String
+    Description: Schedule Expression to trigger the drift detection. Default everyday at noon.
+    Default: cron(0 12 ? * * *)
+  DetectionScheduleTimezone:
+    Type: String
+    Description: Timezone for the detection schedule expression.
+    Default: UTC
+  Regions:
+    Type: String
+    Description: Comma-separated list of regions to scan for CloudFormation stacks, e.g. eu-west-3,us-west-1.
+
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    MemorySize: 256
+    Timeout: 300 # 5 minutes
+    Tracing: Active
+    Environment:
+      Variables:
+        REGIONS: !Ref Regions
+
+Resources:
+  DetectStackDrifts:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: ../dist/detect-stack-drifts
+      Events:
+        ScheduleEvent:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: !Ref DetectionSchedule
+            ScheduleExpressionTimezone: !Ref DetectionScheduleTimezone
+            RetryPolicy:
+              MaximumRetryAttempts: 10
+              MaximumEventAgeInSeconds: 3600 # 1 hour
+      Policies:
+        - ReadOnlyAccess
