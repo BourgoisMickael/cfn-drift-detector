@@ -20,9 +20,6 @@ Globals:
     MemorySize: 256
     Timeout: 300 # 5 minutes
     Tracing: Active
-    Environment:
-      Variables:
-        REGIONS: !Ref Regions
 
 Resources:
   DetectStackDrifts:
@@ -39,5 +36,9 @@ Resources:
             RetryPolicy:
               MaximumRetryAttempts: 10
               MaximumEventAgeInSeconds: 3600 # 1 hour
+            Input: !Sub >-
+              {
+                "REGIONS": "${Regions}"
+              }
       Policies:
         - ReadOnlyAccess

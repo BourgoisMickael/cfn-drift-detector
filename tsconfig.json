@@ -14,7 +14,7 @@
       "moduleResolution": "node",
       "allowUnusedLabels": false,
       "allowUnreachableCode": false,
-      "exactOptionalPropertyTypes": true,
+      "exactOptionalPropertyTypes": false,
       "noFallthroughCasesInSwitch": true,
       "noImplicitOverride": true,
       "noImplicitReturns": true,
