@@ -6,7 +6,9 @@
     "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "build:layer": "mkdir -p ./dist/layer/nodejs && cp package.json ./dist/layer/nodejs && cp package-lock.json ./dist/layer/nodejs && cd ./dist/layer/nodejs && npm ci --only=production",
+        "build": "./build.js && npm run build:layer"
     },
     "repository": {
         "type": "git",

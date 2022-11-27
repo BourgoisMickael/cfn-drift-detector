@@ -28,8 +28,21 @@ Globals:
     MemorySize: 256
     Timeout: 300 # 5 minutes
     Tracing: Active
+    Layers:
+      - !Ref NodeModulesLayer
 
 Resources:
+  NodeModulesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub ${AWS::StackName}-NodeModulesLayer
+      Description: node modules
+      ContentUri: ../dist/layer
+      CompatibleRuntimes:
+        - nodejs18.x
+      RetentionPolicy: Delete
+      LicenseInfo: https://unlicense.org/
+
   DetectStackDrifts:
     Type: AWS::Serverless::Function
     Properties:
