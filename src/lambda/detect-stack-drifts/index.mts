@@ -28,9 +28,7 @@ async function getStacks(cloudformation: CloudFormationClient): Promise<Stack[]>
     let nextToken: string | undefined;
 
     do {
-        const output = await cloudformation.send(
-            new DescribeStacksCommand({ NextToken: nextToken, StackName: 'cfn-drift-detector-test' })
-        );
+        const output = await cloudformation.send(new DescribeStacksCommand({ NextToken: nextToken }));
         nextToken = output.NextToken;
         output.Stacks && stacks.push(...output.Stacks);
     } while (nextToken);
