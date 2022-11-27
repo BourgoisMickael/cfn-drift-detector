@@ -4,6 +4,7 @@ import {
     DetectStackDriftCommand,
     Stack
 } from '@aws-sdk/client-cloudformation';
+import AWSXRAY from 'aws-xray-sdk-core';
 
 import { strToRegExp } from '../../utils.mjs';
 
@@ -75,7 +76,7 @@ export const handler = async (event: InputEvent) => {
 
     await Promise.all(
         regions.map(async (region) => {
-            const cloudformation = new CloudFormationClient({ region });
+            const cloudformation = AWSXRAY.captureAWSv3Client(new CloudFormationClient({ region }));
             const stacks = filterStacks(
                 await getStacks(cloudformation),
                 +(event.DRIFT_AGE_CHECK_HOURS || 0),
