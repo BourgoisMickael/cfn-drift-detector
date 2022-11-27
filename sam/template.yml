@@ -13,6 +13,15 @@ Parameters:
   Regions:
     Type: String
     Description: Comma-separated list of regions to scan for CloudFormation stacks, e.g. eu-west-3,us-west-1.
+  DriftAgeCheckHours:
+    Type: Number
+    Description: Minimum time after the last drift detection to trigger a new drift detection.
+    MinValue: 0
+    Default: 23
+  IgnoreStackIdRegex:
+    Type: String
+    Description: Regex to ignore stacks by id. Applies to StackId and RootId for a stack.
+
 
 Globals:
   Function:
@@ -38,7 +47,9 @@ Resources:
               MaximumEventAgeInSeconds: 3600 # 1 hour
             Input: !Sub >-
               {
-                "REGIONS": "${Regions}"
+                "REGIONS": "${Regions}",
+                "DRIFT_AGE_CHECK_HOURS": "${DriftAgeCheckHours}",
+                "IGNORE_STACK_ID_REGEX": "${IgnoreStackIdRegex}"
               }
       Policies:
         - ReadOnlyAccess
