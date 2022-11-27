@@ -1,24 +1,26 @@
+#! /usr/bin/env node
+
 import { build } from 'esbuild';
-import { createRequire } from "module"; // Bring in the ability to create the 'require' method
+import { createRequire } from 'module'; // Bring in the ability to create the 'require' method
 import fs from 'fs';
 
 const require = createRequire(import.meta.url); // construct the require method
-const packageJson = require("./package.json") // use the require method
-const lambdas = fs.readdirSync('./src/lambda')
+const { dependencies } = require('./package.json'); // use the require method
+const lambdas = fs.readdirSync('./src/lambda');
 
 const shared = {
     bundle: true,
-    external: Object.keys(packageJson.dependencies),
+    external: Object.keys(dependencies),
     format: 'esm',
     platform: 'neutral', // ESM
-    sourcemap: 'linked',
-}
+    sourcemap: 'linked'
+};
 
 for (const lambda of lambdas) {
-    build({
+    const result = await build({
         ...shared,
         entryPoints: [`src/lambda/${lambda}/index.mts`],
         outfile: `dist/${lambda}/index.mjs`
-    })
+    });
+    console.log(`Built ${lambda}`, result);
 }
-

@@ -22,7 +22,6 @@ Parameters:
     Type: String
     Description: Regex to ignore stacks by id. Applies to StackId and RootId for a stack.
 
-
 Globals:
   Function:
     Runtime: nodejs18.x

@@ -1,3 +1,3 @@
-export const handler = (event: any) => {
+export const handler = (event: unknown) => {
     console.log(event);
-}
+};
