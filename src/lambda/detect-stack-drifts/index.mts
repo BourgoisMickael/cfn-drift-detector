@@ -1,5 +1,5 @@
 import { CloudFormationClient, DescribeStacksCommand, DetectStackDriftCommand, Stack } from '@aws-sdk/client-cloudformation';
-import { strToRegExp } from '../utils.mjs';
+import { strToRegExp } from '../../utils.mjs';
 
 interface InputEvent {
     REGIONS?: string;
