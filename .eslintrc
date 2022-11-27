@@ -16,6 +16,12 @@
         "standard-with-typescript",
         "plugin:prettier/recommended"
     ],
+    "rules": {
+        "simple-import-sort/imports": "error",
+        "import/first": "error",
+        "import/newline-after-import": "error",
+        "import/no-duplicates": "error"
+    },
     "overrides": [
         {
             "files": ["*.js"],

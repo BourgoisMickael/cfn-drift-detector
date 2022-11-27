@@ -4,6 +4,7 @@ import {
     DetectStackDriftCommand,
     Stack
 } from '@aws-sdk/client-cloudformation';
+
 import { strToRegExp } from '../../utils.mjs';
 
 interface InputEvent {

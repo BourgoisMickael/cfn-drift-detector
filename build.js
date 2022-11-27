@@ -1,11 +1,12 @@
 #! /usr/bin/env node
 
 import { build } from 'esbuild';
-import { createRequire } from 'module'; // Bring in the ability to create the 'require' method
 import fs from 'fs';
+import { createRequire } from 'module'; // Bring in the ability to create the 'require' method
 
 const require = createRequire(import.meta.url); // construct the require method
-const { dependencies } = require('./package.json'); // use the require method
+const { dependencies } = require('./package.json');
+// use the require method
 const lambdas = fs.readdirSync('./src/lambda');
 
 const shared = {
