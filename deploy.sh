@@ -13,4 +13,4 @@ sam deploy \
         ParameterKey=DetectionSchedule,ParameterValue='$DETECTION_SCHEDULE' \
         ParameterKey=DectionScheduleTimezone,ParameterValue=$DETECTION_SCHEDULE_TIMEZONE \
         ParameterKey=Regions,ParameterValue=$REGIONS \
-        ParameterKey=IgnoreStackIdRegex,ParameterValue=$IGNORE_STACK_ID_REGEX"
+        ParameterKey=IgnoreStackIdRegex,ParameterValue='$IGNORE_STACK_ID_REGEX'"
