@@ -1,0 +1,28 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+        "@typescript-eslint",
+        "prettier",
+        "simple-import-sort",
+        "import"
+    ],
+    "parserOptions": {
+        "project": "tsconfig.eslint.json"
+    },
+    "extends": [
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "standard-with-typescript",
+        "plugin:prettier/recommended"
+    ],
+    "overrides": [
+        {
+            "files": ["*.js"],
+            "rules": {
+                "@typescript-eslint/no-unsafe-assignment": "off",
+                "@typescript-eslint/no-unsafe-argument": "off"
+            }
+        }
+    ]
+  }
