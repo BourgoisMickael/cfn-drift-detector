@@ -1,29 +1,41 @@
 {
-  "name": "cfn-drift-detector",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Perform regular drift detection on every stacks and report drifts through your preferred channel",
-  "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/BourgoisMickael/cfn-drift-detector.git"
-  },
-  "author": "Mickael Bourgois",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/BourgoisMickael/cfn-drift-detector/issues"
-  },
-  "homepage": "https://github.com/BourgoisMickael/cfn-drift-detector#readme",
-  "devDependencies": {
-    "@types/node": "^18.11.9",
-    "esbuild": "^0.15.15",
-    "typescript": "^4.9.3"
-  },
-  "dependencies": {
-    "@aws-sdk/client-cloudformation": "^3.216.0"
-  }
+    "name": "cfn-drift-detector",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Perform regular drift detection on every stacks and report drifts through your preferred channel",
+    "type": "module",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc",
+        "lint": "eslint ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BourgoisMickael/cfn-drift-detector.git"
+    },
+    "author": "Mickael Bourgois",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/BourgoisMickael/cfn-drift-detector/issues"
+    },
+    "homepage": "https://github.com/BourgoisMickael/cfn-drift-detector#readme",
+    "devDependencies": {
+        "@types/node": "^18.11.9",
+        "@typescript-eslint/eslint-plugin": "^5.44.0",
+        "@typescript-eslint/parser": "^5.44.0",
+        "esbuild": "^0.15.15",
+        "eslint": "^8.28.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-config-standard-with-typescript": "^23.0.0",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-n": "^15.5.1",
+        "eslint-plugin-prettier": "^4.2.1",
+        "eslint-plugin-promise": "^6.1.1",
+        "eslint-plugin-simple-import-sort": "^8.0.0",
+        "prettier": "^2.8.0",
+        "typescript": "^4.9.3"
+    },
+    "dependencies": {
+        "@aws-sdk/client-cloudformation": "^3.216.0"
+    }
 }
