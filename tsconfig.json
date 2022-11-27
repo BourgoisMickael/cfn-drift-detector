@@ -23,8 +23,7 @@
       "noUnusedLocals": true,
       "noUnusedParameters": true,
       "importsNotUsedAsValues": "error",
-      "checkJs": true,
-      "outDir": "dist"
+      "checkJs": true
     },
     "include": ["src/**/*"]
   }
