@@ -10,3 +10,7 @@ export function strToRegExp(str?: string): RegExp | undefined {
 
     return undefined;
 }
+
+export function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
