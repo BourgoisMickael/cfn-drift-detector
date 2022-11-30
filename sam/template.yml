@@ -4,11 +4,11 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
   DetectionSchedule:
     Type: String
-    Description: Schedule Expression to trigger the drift detection. Default everyday at noon.
-    Default: cron(0 12 ? * * *)
+    Description: Schedule Expression to trigger the drift detection. Default every 15 min from 6 AM to 7 AM.
+    Default: cron(0/15 6 ? * * *)
   DetectionScheduleTimezone:
     Type: String
-    Description: Timezone for the detection schedule expression.
+    Description: Timezone for the detection schedule expression. Default UTC.
     Default: UTC
   Regions:
     Type: String
