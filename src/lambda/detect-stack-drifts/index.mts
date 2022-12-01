@@ -2,7 +2,9 @@ import {
     CloudFormationClient,
     DescribeStacksCommand,
     DetectStackDriftCommand,
-    Stack
+    ListStacksCommand,
+    Stack,
+    StackSummary
 } from '@aws-sdk/client-cloudformation';
 import AWSXRAY from 'aws-xray-sdk-core';
 
@@ -37,15 +39,18 @@ async function getStacks(
     let nextToken: string | undefined;
 
     do {
-        const output = await cloudformation.send(new DescribeStacksCommand({ NextToken: nextToken }));
+        const output = await cloudformation.send(
+            new ListStacksCommand({ StackStatusFilter: ALLOWED_STACK_STATUS, NextToken: nextToken })
+        );
         nextToken = output.NextToken;
-        output.Stacks && stacks.push(...filterStacks(output.Stacks, lastDriftTimeLimit, ignoreStackRegex));
+        output.StackSummaries &&
+            stacks.push(...filterStacks(output.StackSummaries, lastDriftTimeLimit, ignoreStackRegex));
     } while (nextToken);
 
     return stacks;
 }
 
-function filterStacks(stacks: Stack[], lastDriftTimeLimit: Date, ignoreStackRegex?: RegExp): Stack[] {
+function filterStacks(stacks: StackSummary[], lastDriftTimeLimit: Date, ignoreStackRegex?: RegExp): StackSummary[] {
     return stacks.filter((stack) => {
         if (!stack.StackStatus || !ALLOWED_STACK_STATUS.includes(stack.StackStatus)) return false;
         if (ignoreStackRegex && stack.StackId && ignoreStackRegex.test(stack.StackId)) return false;
