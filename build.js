@@ -13,7 +13,7 @@ const shared = {
     bundle: true,
     external: Object.keys(dependencies),
     format: 'esm',
-    platform: 'neutral', // ESM
+    platform: 'node',
     sourcemap: 'linked'
 };
 
