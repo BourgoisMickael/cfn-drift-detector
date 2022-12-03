@@ -1,6 +1,5 @@
 import {
     CloudFormationClient,
-    DescribeStacksCommand,
     DetectStackDriftCommand,
     ListStacksCommand,
     Stack,
@@ -19,6 +18,7 @@ interface InputEvent {
 const ALLOWED_STACK_STATUS = [
     'CREATE_COMPLETE',
     'UPDATE_COMPLETE',
+    'IMPORT_COMPLETE',
     'UPDATE_ROLLBACK_COMPLETE',
     'UPDATE_ROLLBACK_FAILED'
 ];
