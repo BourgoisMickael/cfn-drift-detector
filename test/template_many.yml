@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  Num:
+    Type: Number
+
+Resources:
+  LogStream:
+    Type: AWS::Logs::LogStream
+    Properties:
+      LogGroupName: abc
+      LogStreamName: !Ref Num
