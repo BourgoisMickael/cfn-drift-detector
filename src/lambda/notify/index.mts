@@ -106,7 +106,7 @@ async function sendEmail(
 }
 
 export const handler = async (event: InputEvent) => {
-    const regions = event.REGIONS?.split(',') || [];
+    const regions = event.REGIONS?.split(',').map((region) => region.trim()) || [];
     const ignoreStackRegex = strToRegExp(event.IGNORE_STACK_ID_REGEX);
 
     if (!event.SES_REGION || !event.SES_SOURCE || !event.SES_DESTINATION) throw new Error('Missing SES configuration');
@@ -120,9 +120,13 @@ export const handler = async (event: InputEvent) => {
         })
     );
 
-    await sendEmail(
-        { region: event.SES_REGION, source: event.SES_SOURCE, destination: event.SES_DESTINATION },
-        regions,
-        driftedStacksPerRegion
-    );
+    if (driftedStacksPerRegion.some((stacks) => stacks.some((stack) => stack.Drifts.length > 0))) {
+        await sendEmail(
+            { region: event.SES_REGION, source: event.SES_SOURCE, destination: event.SES_DESTINATION },
+            regions,
+            driftedStacksPerRegion
+        );
+    } else {
+        console.log('No drift found');
+    }
 };
