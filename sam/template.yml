@@ -6,10 +6,10 @@ Parameters:
     Type: String
     Description: Schedule Expression to trigger the drift detection. Default every 15 min from 6 AM to 7 AM.
     Default: cron(0/15 6 ? * * *)
-  DetectionScheduleTimezone:
-    Type: String
-    Description: Timezone for the detection schedule expression. Default UTC.
-    Default: UTC
+  # DetectionScheduleTimezone:
+  #   Type: String
+  #   Description: Timezone for the detection schedule expression. Default UTC.
+  #   Default: UTC
   Regions:
     Type: String
     Description: Comma-separated list of regions to scan for CloudFormation stacks, e.g. eu-west-3,us-west-1.
@@ -63,11 +63,13 @@ Resources:
       Handler: index.handler
       CodeUri: ../dist/detect-stack-drifts
       Events:
-        ScheduleEvent:
-          Type: ScheduleV2
+        ScheduledEvent:
+          Type: Schedule
           Properties:
-            ScheduleExpression: !Ref DetectionSchedule
-            ScheduleExpressionTimezone: !Ref DetectionScheduleTimezone
+            Enabled: true
+            Schedule: !Ref DetectionSchedule
+            # ScheduleExpression: !Ref DetectionSchedule
+            # ScheduleExpressionTimezone: !Ref DetectionScheduleTimezone
             RetryPolicy:
               MaximumRetryAttempts: 10
               MaximumEventAgeInSeconds: 3600 # 1 hour
@@ -86,11 +88,13 @@ Resources:
       Handler: index.handler
       CodeUri: ../dist/notify
       Events:
-        ScheduleEvent:
-          Type: ScheduleV2
+        ScheduledEvent:
+          Type: Schedule
           Properties:
-            ScheduleExpression: !Ref NotificationSchedule
-            ScheduleExpressionTimezone: !Ref DetectionScheduleTimezone
+            Enabled: true
+            Schedule: !Ref NotificationSchedule
+            # ScheduleExpression: !Ref NotificationSchedule
+            # ScheduleExpressionTimezone: !Ref DetectionScheduleTimezone
             RetryPolicy:
               MaximumRetryAttempts: 10
               MaximumEventAgeInSeconds: 3600 # 1 hour
