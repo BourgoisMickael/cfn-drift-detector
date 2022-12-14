@@ -2,44 +2,60 @@ AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 
 Parameters:
+  # Detection
   DetectionSchedule:
     Type: String
     Description: Schedule Expression to trigger the drift detection. Default every 15 min from 6 AM to 7 AM.
     Default: cron(0/15 6 ? * * *)
-  # DetectionScheduleTimezone:
-  #   Type: String
-  #   Description: Timezone for the detection schedule expression. Default UTC.
-  #   Default: UTC
-  Regions:
-    Type: String
-    Description: Comma-separated list of regions to scan for CloudFormation stacks, e.g. eu-west-3,us-west-1.
   DriftAgeCheckHours:
     Type: Number
     Description: Minimum time after the last drift detection to trigger a new drift detection.
     MinValue: 0
     Default: 23
-  IgnoreStackIdRegex:
-    Type: String
-    Description: Regex to ignore stacks by id. Applies to StackId and RootId for a stack.
+  # Notifier
   NotificationSchedule:
     Type: String
     Description: Schedule Expression to trigger the drift notification. Default 1h after last detection.
     Default: cron(45 7 ? * * *)
-  SesRegion:
+  NotifierService:
     Type: String
-    Description: Region of the SES source identity
+    AllowedValues:
+      - SES
+      - SNS
+    Description: >
+      Service used to notify drifts.
+      Prefer SES for prettier HTML table render.
+      SNS render non formatted text email.
+  NotifierRegion:
+    Type: String
+    Description: Region where the notifier (SES identity or SNS topic) is deployed
+  Destination:
+    Type: String
+    Description: >
+      Destination email to send the drift notification.
+      For SES notifier, ensure this email is verified in sandboxed SES.
+      For SNS notifier, ensure this email is subscribed before the notifier runs.
   SesSource:
     Type: String
     Description: SES source email
-  SesDestination:
+    Default: ""
+  # Global
+  Regions:
     Type: String
-    Description: Destination email to send the drift notification. Ensure this email is verified in sandboxed SES.
+    Description: Comma-separated list of regions to scan for CloudFormation stacks, e.g. eu-west-3,us-west-1.
+  IgnoreStackIdRegex:
+    Type: String
+    Description: Regex to ignore stacks by id. Applies to StackId and RootId for a stack.
   Tracing:
     Type: String
     Description: XRAY tracing mode. Set to Active to enable XRAY.
     AllowedValues:
       - Active
       - PassThrough
+
+Conditions:
+  IsSES: !Equals [!Ref NotifierService, SES]
+  IsSNS: !Equals [!Ref NotifierService, SNS]
 
 Globals:
   Function:
@@ -91,6 +107,14 @@ Resources:
       Policies:
         - ReadOnlyAccess
 
+  NotifierTopic:
+    Type: AWS::SNS::Topic
+    Condition: IsSNS
+    Properties:
+      Subscription:
+        - Protocol: email
+          Endpoint: !Ref Destination
+
   NotifyStackDrifts:
     Type: AWS::Serverless::Function
     Properties:
@@ -99,6 +123,7 @@ Resources:
       Environment:
         Variables:
           XRAY_TRACING: !Ref Tracing
+          TOPIC_ARN: !If [IsSNS, !Ref NotifierTopic, ""]
       Events:
         ScheduledEvent:
           Type: Schedule
@@ -114,9 +139,9 @@ Resources:
               {
                 "REGIONS": "${Regions}",
                 "IGNORE_STACK_ID_REGEX": "${IgnoreStackIdRegex}",
-                "SES_REGION": "${SesRegion}",
-                "SES_SOURCE": "${SesSource}",
-                "SES_DESTINATION": "${SesDestination}"
+                "NOTIFIER_REGION": "${NotifierRegion}",
+                "DESTINATION": "${Destination}",
+                "SES_SOURCE": "${SesSource}"
               }
       Policies:
         - Version: 2012-10-17
@@ -126,5 +151,9 @@ Resources:
                 - cloudformation:ListStacks
                 - cloudformation:DescribeStackResourceDrifts
               Resource: "*"
-        - SESCrudPolicy:
-            IdentityName: !Ref SesSource
+        - !If
+          - IsSES
+          - SESCrudPolicy:
+              IdentityName: !Ref SesSource
+          - SNSPublishMessagePolicy:
+              TopicName: !GetAtt NotifierTopic.TopicName

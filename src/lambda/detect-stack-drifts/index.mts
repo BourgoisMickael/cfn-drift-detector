@@ -8,7 +8,7 @@ import {
 
 import { sleep, strToRegExp } from '../../utils.mjs';
 
-const AWSXRAY = process.env.XRAY_TRACING === 'Active' && (await import('aws-xray-sdk-core'));
+const AWSXRAY = process.env.XRAY_TRACING === 'Active' && (await import('aws-xray-sdk-core')).default;
 
 interface InputEvent {
     REGIONS?: string;

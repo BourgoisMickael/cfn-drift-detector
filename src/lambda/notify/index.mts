@@ -6,19 +6,21 @@ import {
     StackSummary
 } from '@aws-sdk/client-cloudformation';
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
 import { strToRegExp } from '../../utils.mjs';
 import { htmlNotifier } from './html-notifier.mjs';
+import { jsonNotifier } from './json-notifier.mjs';
 import type { StackWithDrifts } from './stack-with-drifts.mjs';
 
-const AWSXRAY = process.env.XRAY_TRACING === 'Active' && (await import('aws-xray-sdk-core'));
+const AWSXRAY = process.env.XRAY_TRACING === 'Active' && (await import('aws-xray-sdk-core')).default;
 
 interface InputEvent {
     REGIONS?: string;
     IGNORE_STACK_ID_REGEX?: string;
-    SES_REGION?: string;
+    NOTIFIER_REGION?: string;
+    DESTINATION?: string;
     SES_SOURCE?: string;
-    SES_DESTINATION?: string;
 }
 
 const ALLOWED_STACK_STATUS = [
@@ -77,7 +79,7 @@ async function getStacksDriftDetails(
     return driftedStacks;
 }
 
-async function sendEmail(
+async function sendHtmlEmail(
     opt: { destination: string; region: string; source: string },
     regions: string[],
     stacksWithDrifts: StackWithDrifts[][]
@@ -108,11 +110,33 @@ async function sendEmail(
     );
 }
 
+async function sendTextEmail(
+    opt: { destination: string; region: string },
+    regions: string[],
+    stacksWithDrifts: StackWithDrifts[][]
+) {
+    const snsClient = AWSXRAY
+        ? // Workaround for xray bug: https://github.com/aws/aws-xray-sdk-node/issues/439
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (AWSXRAY.captureAWSv3Client(new SNSClient({ region: opt.region }) as any) as SNSClient)
+        : new SNSClient({ region: opt.region });
+
+    await snsClient.send(
+        new PublishCommand({
+            TopicArn: process.env.TOPIC_ARN,
+            Subject: 'CFN Drift Detector Notification',
+            Message: jsonNotifier(regions, stacksWithDrifts)
+        })
+    );
+}
+
 export const handler = async (event: InputEvent) => {
+    if (!event.NOTIFIER_REGION) throw new Error('Missing NOTIFIER_REGION');
+    if (!event.DESTINATION) throw new Error('Missing DESTINATION');
+    if (!process.env.TOPIC_ARN?.length && !event.SES_SOURCE) throw new Error('Missing SES_SOURCE');
+
     const regions = event.REGIONS?.split(',').map((region) => region.trim()) || [];
     const ignoreStackRegex = strToRegExp(event.IGNORE_STACK_ID_REGEX);
-
-    if (!event.SES_REGION || !event.SES_SOURCE || !event.SES_DESTINATION) throw new Error('Missing SES configuration');
 
     const driftedStacksPerRegion = await Promise.all(
         regions.map(async (region) => {
@@ -126,11 +150,22 @@ export const handler = async (event: InputEvent) => {
     );
 
     if (driftedStacksPerRegion.some((stacks) => stacks.some((stack) => stack.Drifts.length > 0))) {
-        await sendEmail(
-            { region: event.SES_REGION, source: event.SES_SOURCE, destination: event.SES_DESTINATION },
-            regions,
-            driftedStacksPerRegion
-        );
+        if (process.env.TOPIC_ARN?.length) {
+            // Use SNS
+            await sendTextEmail(
+                { region: event.NOTIFIER_REGION, destination: event.DESTINATION },
+                regions,
+                driftedStacksPerRegion
+            );
+        } else {
+            // Use SES
+            await sendHtmlEmail(
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                { region: event.NOTIFIER_REGION, destination: event.DESTINATION, source: event.SES_SOURCE! },
+                regions,
+                driftedStacksPerRegion
+            );
+        }
     } else {
         console.log('No drift found');
     }

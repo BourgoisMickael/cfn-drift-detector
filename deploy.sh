@@ -11,9 +11,10 @@ sam deploy \
     --stack-name cfn-drift-detector \
     --parameter-overrides "\
         ParameterKey=DetectionSchedule,ParameterValue='$DETECTION_SCHEDULE' \
+        ParameterKey=NotifierService,ParameterValue=SES \
+        ParameterKey=NotifierRegion,ParameterValue=$NOTIFIER_REGION \
+        ParameterKey=Destination,ParameterValue=$DESTINATION \
+        ParameterKey=SesSource,ParameterValue=$SES_SOURCE \
         ParameterKey=Regions,ParameterValue=$REGIONS \
         ParameterKey=IgnoreStackIdRegex,ParameterValue='$IGNORE_STACK_ID_REGEX' \
-        ParameterKey=SesRegion,ParameterValue=$SES_REGION \
-        ParameterKey=SesSource,ParameterValue=$SES_SOURCE \
-        ParameterKey=SesDestination,ParameterValue=$SES_DESTINATION \
         ParameterKey=Tracing,ParameterValue=Active"
