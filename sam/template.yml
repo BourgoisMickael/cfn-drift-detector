@@ -34,6 +34,12 @@ Parameters:
   SesDestination:
     Type: String
     Description: Destination email to send the drift notification. Ensure this email is verified in sandboxed SES.
+  Tracing:
+    Type: String
+    Description: XRAY tracing mode. Set to Active to enable XRAY.
+    AllowedValues:
+      - Active
+      - PassThrough
 
 Globals:
   Function:
@@ -41,7 +47,7 @@ Globals:
     MemorySize: 128
     # For ~1000 stacks it takes ~10 minutes
     Timeout: 900 # 15 minutes
-    Tracing: Active
+    Tracing: !Ref Tracing
     Layers:
       - !Ref NodeModulesLayer
 
@@ -62,6 +68,9 @@ Resources:
     Properties:
       Handler: index.handler
       CodeUri: ../dist/detect-stack-drifts
+      Environment:
+        Variables:
+          XRAY_TRACING: !Ref Tracing
       Events:
         ScheduledEvent:
           Type: Schedule
@@ -87,6 +96,9 @@ Resources:
     Properties:
       Handler: index.handler
       CodeUri: ../dist/notify
+      Environment:
+        Variables:
+          XRAY_TRACING: !Ref Tracing
       Events:
         ScheduledEvent:
           Type: Schedule

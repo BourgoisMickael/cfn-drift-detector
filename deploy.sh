@@ -15,4 +15,5 @@ sam deploy \
         ParameterKey=IgnoreStackIdRegex,ParameterValue='$IGNORE_STACK_ID_REGEX' \
         ParameterKey=SesRegion,ParameterValue=$SES_REGION \
         ParameterKey=SesSource,ParameterValue=$SES_SOURCE \
-        ParameterKey=SesDestination,ParameterValue=$SES_DESTINATION"
+        ParameterKey=SesDestination,ParameterValue=$SES_DESTINATION \
+        ParameterKey=Tracing,ParameterValue=Active"

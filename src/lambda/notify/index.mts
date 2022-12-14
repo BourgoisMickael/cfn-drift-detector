@@ -6,11 +6,12 @@ import {
     StackSummary
 } from '@aws-sdk/client-cloudformation';
 import { SendEmailCommand, SESClient } from '@aws-sdk/client-ses';
-import AWSXRAY from 'aws-xray-sdk-core';
 
 import { strToRegExp } from '../../utils.mjs';
 import { htmlNotifier } from './html-notifier.mjs';
 import type { StackWithDrifts } from './stack-with-drifts.mjs';
+
+const AWSXRAY = process.env.XRAY_TRACING === 'Active' && (await import('aws-xray-sdk-core'));
 
 interface InputEvent {
     REGIONS?: string;
@@ -81,9 +82,11 @@ async function sendEmail(
     regions: string[],
     stacksWithDrifts: StackWithDrifts[][]
 ): Promise<void> {
-    // Workaround for xray bug: https://github.com/aws/aws-xray-sdk-node/issues/439
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sesClient = AWSXRAY.captureAWSv3Client(new SESClient({ region: opt.region }) as any) as SESClient;
+    const sesClient = AWSXRAY
+        ? // Workaround for xray bug: https://github.com/aws/aws-xray-sdk-node/issues/439
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (AWSXRAY.captureAWSv3Client(new SESClient({ region: opt.region }) as any) as SESClient)
+        : new SESClient({ region: opt.region });
 
     await sesClient.send(
         new SendEmailCommand({
@@ -113,7 +116,9 @@ export const handler = async (event: InputEvent) => {
 
     const driftedStacksPerRegion = await Promise.all(
         regions.map(async (region) => {
-            const cloudformation = AWSXRAY.captureAWSv3Client(new CloudFormationClient({ region }));
+            const cloudformation = AWSXRAY
+                ? AWSXRAY.captureAWSv3Client(new CloudFormationClient({ region }))
+                : new CloudFormationClient({ region });
             const stacks = await getStacks(cloudformation, ignoreStackRegex);
             console.log(`[${region}] Stacks found: ${stacks.length}`);
             return getStacksDriftDetails(cloudformation, stacks);
