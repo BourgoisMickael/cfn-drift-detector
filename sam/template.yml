@@ -57,6 +57,13 @@ Conditions:
   IsSES: !Equals [!Ref NotifierService, SES]
   IsSNS: !Equals [!Ref NotifierService, SNS]
 
+Rules:
+  SESSourceRequired:
+    RuleCondition: !Equals [!Ref NotifierService, SES]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref SesSource, ""]]
+        AssertDescription: If notifier is SES, an SES source email is required
+
 Globals:
   Function:
     Runtime: nodejs18.x
