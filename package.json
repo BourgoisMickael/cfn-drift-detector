@@ -2,7 +2,7 @@
     "name": "cfn-drift-detector",
     "version": "1.0.0",
     "private": true,
-    "description": "Perform regular drift detection on every stacks and report drifts through your preferred channel",
+    "description": "Perform regular drift detection on every stacks and report drifts by email",
     "type": "module",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -39,6 +39,7 @@
     "dependencies": {
         "@aws-sdk/client-cloudformation": "^3.216.0",
         "@aws-sdk/client-ses": "^3.222.0",
+        "@aws-sdk/client-sns": "^3.222.0",
         "aws-xray-sdk-core": "^3.4.0"
     }
 }
