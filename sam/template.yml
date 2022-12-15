@@ -1,6 +1,42 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: cfn-drift-detector
+    Description: Perform regular drift detection on every stacks and report drifts by email
+    Author: Mickael Bourgois
+    ReadmeUrl: ../README.md
+    LicenseUrl: ../LICENSE
+    Labels:
+      - cloudformation
+      - drift
+    HomePageUrl: https://github.com/BourgoisMickael/cfn-drift-detector
+    SemanticVersion: 1.0.0
+    SourceCodeUrl: https://github.com/BourgoisMickael/cfn-drift-detector
+
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Detection
+        Parameters:
+          - DetectionSchedule
+          - DriftAgeCheckHours
+      - Label:
+          default: Notification
+        Parameters:
+          - NotificationSchedule
+          - NotifierService
+          - NotifierRegion
+          - Destination
+          - SesSource
+      - Label:
+          default: Global
+        Parameters:
+          - Regions
+          - IgnoreStackIdRegex
+          - Tracing
+
 Parameters:
   # Detection
   DetectionSchedule:
