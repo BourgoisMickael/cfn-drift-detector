@@ -22,6 +22,7 @@ Parameters:
     AllowedValues:
       - SES
       - SNS
+    Default: SES
     Description: >
       Service used to notify drifts.
       Prefer SES for prettier HTML table render.
@@ -52,6 +53,7 @@ Parameters:
     AllowedValues:
       - Active
       - PassThrough
+    Default: Active
 
 Conditions:
   IsSES: !Equals [!Ref NotifierService, SES]
