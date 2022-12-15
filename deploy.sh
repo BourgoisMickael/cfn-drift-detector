@@ -3,7 +3,8 @@
 source .env
 
 sam deploy \
-    --region eu-west-1 \
+    --region $DEPLOY_REGION \
+    --profile $DEPLOY_PROFILE \
     --template-file sam/template.yml \
     --no-fail-on-empty-changeset \
     --s3-bucket $S3_BUCKET \
