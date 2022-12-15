@@ -8,6 +8,7 @@ Metadata:
     Author: Mickael Bourgois
     ReadmeUrl: ../README.md
     LicenseUrl: ../LICENSE
+    SpdxLicenseId: Unlicense
     Labels:
       - cloudformation
       - drift

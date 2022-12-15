@@ -2,7 +2,7 @@
 
 Perform regular drift detection on every stacks and report drifts by email automatically.
 
-![email-screenshot](./assets/email-screenshot.png)
+![email-screenshot](https://raw.githubusercontent.com/BourgoisMickael/cfn-drift-detector/master/assets/email-screenshot.png)
 
 ___
 ## How does it work ?
@@ -17,7 +17,7 @@ ___
     2. For each selected `Regions` the lambda lists all the stacks and filters the ones matching `IgnoreStackIdRegex` or the ones that are not drifted.
     3. Depending on `NotifierService`, the lambda will send an HTML or text report to the `Destination` email.
 
-![architecture](./assets/architecture.png)
+![architecture](https://raw.githubusercontent.com/BourgoisMickael/cfn-drift-detector/master/assets/architecture.png)
 
 ## Development
 
