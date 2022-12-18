@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source .env
+# source .env
 
 sam package \
     --region $DEPLOY_REGION \
