@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  SAM_CLI_TELEMETRY: 0
+  AWS_REGION: eu-west-3
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # This is required for requesting the JWT
+
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v3
+
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install AWS CLI and SAM CLI
+        run: pip3 install awscli aws-sam-cli
+
+      - name: Install Node JS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Build the application
+        run: ./build.js
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Publish the application
+        run: ./publish.sh
