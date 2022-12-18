@@ -75,7 +75,7 @@ Parameters:
       For SNS notifier, ensure this email is subscribed before the notifier runs.
   SesSource:
     Type: String
-    Description: SES source email
+    Description: Optional. SES source email.
     Default: ""
   # Global
   Regions:
@@ -83,7 +83,8 @@ Parameters:
     Description: Comma-separated list of regions to scan for CloudFormation stacks, e.g. eu-west-3,us-west-1.
   IgnoreStackIdRegex:
     Type: String
-    Description: Regex to ignore stacks by id. Applies to StackId and RootId for a stack.
+    Description: Optional. Regex to ignore stacks by id. Applies to StackId and RootId for a stack.
+    Default: ""
   Tracing:
     Type: String
     Description: XRAY tracing mode. Set to Active to enable XRAY.
@@ -133,6 +134,9 @@ Resources:
       Environment:
         Variables:
           XRAY_TRACING: !Ref Tracing
+          REGIONS: !Ref Regions
+          DRIFT_AGE_CHECK_HOURS: !Ref DriftAgeCheckHours
+          IGNORE_STACK_ID_REGEX: !Ref IgnoreStackIdRegex
       Events:
         ScheduledEvent:
           Type: Schedule
@@ -144,12 +148,6 @@ Resources:
             RetryPolicy:
               MaximumRetryAttempts: 10
               MaximumEventAgeInSeconds: 3600 # 1 hour
-            Input: !Sub >-
-              {
-                "REGIONS": "${Regions}",
-                "DRIFT_AGE_CHECK_HOURS": "${DriftAgeCheckHours}",
-                "IGNORE_STACK_ID_REGEX": "${IgnoreStackIdRegex}"
-              }
       Policies:
         - ReadOnlyAccess
 
@@ -170,6 +168,10 @@ Resources:
         Variables:
           XRAY_TRACING: !Ref Tracing
           TOPIC_ARN: !If [IsSNS, !Ref NotifierTopic, ""]
+          REGIONS: !Ref Regions
+          IGNORE_STACK_ID_REGEX: !Ref IgnoreStackIdRegex
+          DESTINATION: !Ref Destination
+          SES_SOURCE: !Ref SesSource
       Events:
         ScheduledEvent:
           Type: Schedule
@@ -181,14 +183,6 @@ Resources:
             RetryPolicy:
               MaximumRetryAttempts: 10
               MaximumEventAgeInSeconds: 3600 # 1 hour
-            Input: !Sub >-
-              {
-                "REGIONS": "${Regions}",
-                "IGNORE_STACK_ID_REGEX": "${IgnoreStackIdRegex}",
-                "NOTIFIER_REGION": "${NotifierRegion}",
-                "DESTINATION": "${Destination}",
-                "SES_SOURCE": "${SesSource}"
-              }
       Policies:
         - Version: 2012-10-17
           Statement:

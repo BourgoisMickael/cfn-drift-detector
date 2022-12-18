@@ -15,14 +15,6 @@ import type { StackWithDrifts } from './stack-with-drifts.mjs';
 
 const AWSXRAY = process.env.XRAY_TRACING === 'Active' && (await import('aws-xray-sdk-core')).default;
 
-interface InputEvent {
-    REGIONS?: string;
-    IGNORE_STACK_ID_REGEX?: string;
-    NOTIFIER_REGION?: string;
-    DESTINATION?: string;
-    SES_SOURCE?: string;
-}
-
 const ALLOWED_STACK_STATUS = [
     'CREATE_COMPLETE',
     'ROLLBACK_COMPLETE',
@@ -130,13 +122,12 @@ async function sendTextEmail(
     );
 }
 
-export const handler = async (event: InputEvent) => {
-    if (!event.NOTIFIER_REGION) throw new Error('Missing NOTIFIER_REGION');
-    if (!event.DESTINATION) throw new Error('Missing DESTINATION');
-    if (!process.env.TOPIC_ARN?.length && !event.SES_SOURCE) throw new Error('Missing SES_SOURCE');
+export const handler = async () => {
+    if (!process.env.DESTINATION) throw new Error('Missing DESTINATION');
+    if (!process.env.TOPIC_ARN?.length && !process.env.SES_SOURCE) throw new Error('Missing SES_SOURCE');
 
-    const regions = event.REGIONS?.split(',').map((region) => region.trim()) || [];
-    const ignoreStackRegex = strToRegExp(event.IGNORE_STACK_ID_REGEX);
+    const regions = process.env.REGIONS?.split(',').map((region) => region.trim()) || [];
+    const ignoreStackRegex = strToRegExp(process.env.IGNORE_STACK_ID_REGEX);
 
     const driftedStacksPerRegion = await Promise.all(
         regions.map(async (region) => {
@@ -153,15 +144,21 @@ export const handler = async (event: InputEvent) => {
         if (process.env.TOPIC_ARN?.length) {
             // Use SNS
             await sendTextEmail(
-                { region: event.NOTIFIER_REGION, destination: event.DESTINATION },
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                { region: process.env.AWS_REGION!, destination: process.env.DESTINATION },
                 regions,
                 driftedStacksPerRegion
             );
         } else {
             // Use SES
             await sendHtmlEmail(
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                { region: event.NOTIFIER_REGION, destination: event.DESTINATION, source: event.SES_SOURCE! },
+                {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    region: process.env.AWS_REGION!,
+                    destination: process.env.DESTINATION,
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    source: process.env.SES_SOURCE!
+                },
                 regions,
                 driftedStacksPerRegion
             );

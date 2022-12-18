@@ -10,12 +10,6 @@ import { sleep, strToRegExp } from '../../utils.mjs';
 
 const AWSXRAY = process.env.XRAY_TRACING === 'Active' && (await import('aws-xray-sdk-core')).default;
 
-interface InputEvent {
-    REGIONS?: string;
-    DRIFT_AGE_CHECK_HOURS?: string;
-    IGNORE_STACK_ID_REGEX?: string;
-}
-
 const ALLOWED_STACK_STATUS = [
     'CREATE_COMPLETE',
     'UPDATE_COMPLETE',
@@ -96,16 +90,16 @@ async function detectDrift(cloudformation: CloudFormationClient, stacks: Stack[]
     if (lastError) throw lastError;
 }
 
-export const handler = async (event: InputEvent) => {
-    const regions = event.REGIONS?.split(',') || [];
-    const ignoreStackRegex = strToRegExp(event.IGNORE_STACK_ID_REGEX);
+export const handler = async () => {
+    const regions = process.env.REGIONS?.split(',') || [];
+    const ignoreStackRegex = strToRegExp(process.env.IGNORE_STACK_ID_REGEX);
 
     await Promise.all(
         regions.map(async (region) => {
             const cloudformation = AWSXRAY
                 ? AWSXRAY.captureAWSv3Client(new CloudFormationClient({ region }))
                 : new CloudFormationClient({ region });
-            const stacks = await getStacks(cloudformation, +(event.DRIFT_AGE_CHECK_HOURS || 0), ignoreStackRegex);
+            const stacks = await getStacks(cloudformation, +(process.env.DRIFT_AGE_CHECK_HOURS || 0), ignoreStackRegex);
             console.log(`[${region}] Stacks found: ${stacks.length}`);
 
             await detectDrift(cloudformation, stacks);
