@@ -8,7 +8,6 @@ do
     echo $i
     aws cloudformation create-stack \
         --region $DEPLOY_REGION \
-        --profile $DEPLOY_PROFILE \
         --template-body file://template_many.yml \
         --stack-name t${i} \
         --parameters \

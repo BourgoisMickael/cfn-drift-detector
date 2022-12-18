@@ -8,7 +8,6 @@ do
     echo $i
     aws cloudformation delete-stack \
         --region $DEPLOY_REGION \
-        --profile $DEPLOY_PROFILE \
         --stack-name t${i} &
     sleep 0.5
 done
