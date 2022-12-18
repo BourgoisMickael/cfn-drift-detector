@@ -28,7 +28,6 @@ Metadata:
         Parameters:
           - NotificationSchedule
           - NotifierService
-          - NotifierRegion
           - Destination
           - SesSource
       - Label:
@@ -64,9 +63,6 @@ Parameters:
       Service used to notify drifts.
       Prefer SES for prettier HTML table render.
       SNS render non formatted text email.
-  NotifierRegion:
-    Type: String
-    Description: Region where the notifier (SES identity or SNS topic) is deployed
   Destination:
     Type: String
     Description: >
