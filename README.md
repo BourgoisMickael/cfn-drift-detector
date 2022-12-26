@@ -4,6 +4,8 @@ Perform regular drift detection on every stacks and report drifts by email autom
 
 ![email-screenshot](https://raw.githubusercontent.com/BourgoisMickael/cfn-drift-detector/master/assets/email-screenshot.png)
 
+❗ Drift detection triggers way to many false positive for now, this project might spam you with emails where you can't do anything. There are many bug issues open, see https://github.com/aws-cloudformation/cloudformation-coverage-roadmap/issues?q=is%3Aissue+is%3Aopen+drift+detection+label%3Abug
+
 ___
 ## How does it work ?
 
